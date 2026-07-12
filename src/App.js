@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 import './App.css';
 
 const CONTRACT_ADDRESS = "0xE1AE1940b0e435cBb7f3D6F1e3B3C947C17e9b52";
-const ADMIN_WALLET = "0x8576430B4f316FfD1c0D9C3b4C6ce680F7fDfD92".toLowerCase();
+const ADMIN_WALLET = "0x70eEFEd646d12AB2A352D61aFc40947F5187797c".toLowerCase();
 
 const CONTRACT_ABI = [
   "function signupFee() view returns (uint256)",
