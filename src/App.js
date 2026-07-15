@@ -26,7 +26,6 @@ function App() {
   const [totalUsers, setTotalUsers] = useState(0);
   const [liveHistory, setLiveHistory] = useState([]);
 
-  // FAST Data Fetch Function
   const fetchDashboardData = async (signer) => {
     try {
       const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
@@ -37,29 +36,21 @@ function App() {
       const fee = await contract.signupFee();
       setCurrentFee(ethers.formatUnits(fee, 18));
 
-      // 1. Saare Users nikal lo
       const allUsers = await contract.getAllUsersDetailedData();
       setUsersList(allUsers);
       setTotalUsers(allUsers.length);
 
-      // Mapping for finding user ID by address
-      const userToIndex = {};
-      allUsers.forEach((user, index) => {
-        userToIndex[user.userWallet.toLowerCase()] = index + 1;
-      });
-
-      // 2. Har user ki history ek sath PARALLEL fetch karo
       const historyPromises = allUsers.map(user => contract.getUserTransferHistory(user.userWallet));
       const allHistories = await Promise.all(historyPromises);
 
       let fullHistory = [];
-      
       allUsers.forEach((user, index) => {
         const userHistory = allHistories[index];
-        const userId = index + 1;
+        // Index + 1 ko userId maan rahe hain taaki har user ka apna permanent number ho
+        const userId = index + 1; 
         for (let j = 0; j < userHistory.length; j++) {
           fullHistory.push({
-            userId: userId, // Number pass kiya
+            userId: userId, 
             user: user.userWallet,
             destination: userHistory[j].destination,
             amount: ethers.formatUnits(userHistory[j].amount, 18),
@@ -79,23 +70,15 @@ function App() {
 
   useEffect(() => {
     if (!isAdmin) return;
-
     const loadData = async () => {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
       fetchDashboardData(signer);
     };
     loadData();
-
-    const interval = setInterval(() => {
-      loadData();
-    }, 15000);
-
+    const interval = setInterval(loadData, 15000);
     return () => clearInterval(interval);
   }, [isAdmin]);
-
-  // ... (Baaki functions same rahenge: connectAdmin, handleUpdateFee, togglePauseStatus)
-  // Maine niche functions include kar diye hain taaki code complete rahe
 
   const connectAdmin = async () => {
     if (!window.ethereum) return alert("MetaMask is required!");
@@ -103,7 +86,6 @@ function App() {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
       const address = await signer.getAddress();
-      
       if (address.toLowerCase() === ADMIN_WALLET) {
         setAccount(address);
         setIsAdmin(true);
@@ -115,6 +97,7 @@ function App() {
     }
   };
 
+  // ... handleUpdateFee aur togglePauseStatus yahan hain ...
   const handleUpdateFee = async () => {
     if (newFeeInput === "") return alert("Please enter a valid amount");
     try {
@@ -124,12 +107,10 @@ function App() {
       const feeInWei = ethers.parseUnits(newFeeInput, 18);
       const tx = await contract.setSignupFee(feeInWei);
       await tx.wait();
-      alert("Signup Fee Updated Successfully!");
+      alert("Signup Fee Updated!");
       fetchDashboardData(signer); 
       setNewFeeInput("");
-    } catch (err) {
-      alert("Transaction Failed! Check console.");
-    }
+    } catch (err) { alert("Transaction Failed!"); }
   };
 
   const togglePauseStatus = async () => {
@@ -137,22 +118,16 @@ function App() {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-      let tx;
-      if (isPaused) tx = await contract.resumeSystem();
-      else tx = await contract.pauseSystem();
+      let tx = isPaused ? await contract.resumeSystem() : await contract.pauseSystem();
       await tx.wait();
-      alert(`System has been ${isPaused ? 'Resumed' : 'Paused'} successfully!`);
       fetchDashboardData(signer); 
-    } catch (err) {
-      alert("Failed to change system status!");
-    }
+    } catch (err) { alert("Failed!"); }
   };
 
   if (!isAdmin) {
     return (
       <div className="login-container">
-        <h1 style={{ fontSize: '40px', marginBottom: '10px' }}>Fund Safer <span style={{ color: '#ec4899' }}>Admin</span></h1>
-        <p style={{ color: '#a0aec0', marginBottom: '40px' }}>Secure Administration Gateway</p>
+        <h1>Fund Safer <span style={{ color: '#ec4899' }}>Admin</span></h1>
         <button onClick={connectAdmin} className="btn-primary">Connect Admin Wallet</button>
       </div>
     );
@@ -160,72 +135,45 @@ function App() {
 
   return (
     <div className="dashboard-container">
-      {/* ... (Header same rahenga) ... */}
+      {/* Header, Emergency Controls, Fee Settings (Waisa ka waisa) */}
       <div className="header">
-        <div><h2>Admin Control Panel</h2><p style={{ color: '#a0aec0', fontSize: '14px' }}>Wallet: {account}</p></div>
-        <div><span className={`badge ${isPaused ? 'badge-paused' : 'badge-active'}`}>System: {isPaused ? 'PAUSED' : 'ACTIVE'}</span></div>
-      </div>
-
-      {/* ... (Emergency Controls aur Signup Fee card same rahenge) ... */}
-
-      <div className="card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3>Registered Users Directory</h3>
-          <span className="badge badge-active">Total Users: {totalUsers}</span>
-        </div>
-        <div className="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>No.</th>
-                <th>User Wallet</th>
-                <th>Destination Wallet</th>
-                <th>Total Forwarded</th>
-              </tr>
-            </thead>
-            <tbody>
-              {usersList.map((user, index) => (
-                <tr key={index}>
-                  <td>{index + 1}</td>
-                  <td style={{ fontFamily: 'monospace', color: '#e2e8f0' }}>{user.userWallet}</td>
-                  <td style={{ fontFamily: 'monospace', color: '#e2e8f0' }}>{user.destinationWallet}</td>
-                  <td className="text-green">{ethers.formatUnits(user.totalForwarded, 18)} USDT</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <h2>Admin Control Panel</h2>
+        <span className={`badge ${isPaused ? 'badge-paused' : 'badge-active'}`}>System: {isPaused ? 'PAUSED' : 'ACTIVE'}</span>
       </div>
 
       <div className="card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3>Transfer History (Latest 20)</h3>
-          <span className="badge" style={{ backgroundColor: 'rgba(236, 72, 153, 0.1)', color: '#ec4899', border: '1px solid #ec4899' }}>🟢 AUTO-SYNCING</span>
-        </div>
-        <div className="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>No.</th>
-                <th>Time</th>
-                <th>From (User)</th>
-                <th>To (Destination)</th>
-                <th>Amount Forwarded</th>
+        <h3>Registered Users Directory</h3>
+        <table>
+          <thead><tr><th>No.</th><th>User Wallet</th><th>Destination Wallet</th><th>Total Forwarded</th></tr></thead>
+          <tbody>
+            {usersList.map((user, index) => (
+              <tr key={index}>
+                <td>{index + 1}</td> 
+                <td>{user.userWallet}</td>
+                <td>{user.destinationWallet}</td>
+                <td>{ethers.formatUnits(user.totalForwarded, 18)} USDT</td>
               </tr>
-            </thead>
-            <tbody>
-              {liveHistory.map((tx, index) => (
-                <tr key={index}>
-                  <td>#{tx.userId}</td>
-                  <td style={{ color: '#a0aec0', fontSize: '12px' }}>{tx.time}</td>
-                  <td style={{ fontFamily: 'monospace' }}>{tx.user}</td>
-                  <td style={{ fontFamily: 'monospace' }}>{tx.destination}</td>
-                  <td className="text-pink">+{tx.amount} USDT</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="card">
+        <h3>Transfer History (Latest 20)</h3>
+        <table>
+          <thead><tr><th>No.</th><th>Time</th><th>User ID</th><th>To (Destination)</th><th>Amount</th></tr></thead>
+          <tbody>
+            {liveHistory.map((tx, index) => (
+              <tr key={index}>
+                <td>{index + 1}</td>
+                <td>{tx.time}</td>
+                <td>#{tx.userId}</td> 
+                <td>{tx.destination}</td>
+                <td>+{tx.amount} USDT</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
