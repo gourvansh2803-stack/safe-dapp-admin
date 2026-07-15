@@ -123,27 +123,27 @@ function App() {
         <span className={`badge ${isPaused ? 'badge-paused' : 'badge-active'}`}>System: {isPaused ? 'PAUSED' : 'ACTIVE'}</span>
       </div>
 
-      {/* EMERGENCY AND FEE SETTINGS CARD - WAPAS AA GAYE HAIN */}
-      <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '24px' }}>
-        <div className="card" style={{ flex: '1', minWidth: '300px' }}>
-          <h3>Emergency Controls</h3>
+      {/* MODERN EMERGENCY AND FEE CARDS */}
+      <div className="controls-grid">
+        <div className="card control-card">
+          <h3>Emergency System</h3>
+          <p>Pause or Resume contract</p>
           <button onClick={togglePauseStatus} className={isPaused ? "btn-success" : "btn-danger"}>
             {isPaused ? "▶ Resume System" : "⏸ Pause System"}
           </button>
         </div>
-        <div className="card" style={{ flex: '1', minWidth: '300px' }}>
-          <h3>Signup Fee Settings</h3>
-          <p>Current: {currentFee} USDT</p>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <input type="number" className="input-field" value={newFeeInput} onChange={(e) => setNewFeeInput(e.target.value)} placeholder="New fee..." />
-            <button onClick={handleUpdateFee} className="btn-primary">Update</button>
+        <div className="card control-card">
+          <h3>Signup Fee ({currentFee} USDT)</h3>
+          <div className="input-group">
+            <input type="number" className="input-field" value={newFeeInput} onChange={(e) => setNewFeeInput(e.target.value)} placeholder="0.00" />
+            <button onClick={handleUpdateFee} className="btn-primary">Set Fee</button>
           </div>
         </div>
       </div>
 
       {/* Directory Table */}
       <div className="card">
-        <h3>Registered Users Directory <span className="badge badge-active">Total: {totalUsers}</span></h3>
+        <h3>Registered Users <span className="badge badge-active">{totalUsers}</span></h3>
         <div className="table-container">
           <table>
             <thead><tr><th>#</th><th>User Wallet</th><th>Destination</th><th>Forwarded</th></tr></thead>
@@ -166,13 +166,13 @@ function App() {
         <h3>Transfer History (Latest 20)</h3>
         <div className="table-container">
           <table>
-            <thead><tr><th>#</th><th>Time</th><th>User ID</th><th>Destination</th><th>Amount</th></tr></thead>
+            <thead><tr><th>Time</th><th>User ID</th><th>From (User)</th><th>To (Destination)</th><th>Amount</th></tr></thead>
             <tbody>
               {liveHistory.map((tx, i) => (
                 <tr key={i}>
-                  <td>{i + 1}</td>
-                  <td>{tx.time}</td>
-                  <td>#{tx.userId}</td>
+                  <td style={{fontSize:'12px', color:'#a0aec0'}}>{tx.time}</td>
+                  <td><strong>#{tx.userId}</strong></td>
+                  <td style={{fontFamily:'monospace'}}>{tx.user}</td>
                   <td style={{fontFamily:'monospace'}}>{tx.destination}</td>
                   <td className="text-pink">+{tx.amount} USDT</td>
                 </tr>
