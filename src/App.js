@@ -44,7 +44,7 @@ function App() {
 
       let fullHistory = [];
       allUsers.forEach((user, index) => {
-        const userId = index + 1;
+        const userId = index + 1; // User ID define kar di
         allHistories[index].forEach(tx => {
           fullHistory.push({
             userId,
@@ -74,7 +74,6 @@ function App() {
     return () => clearInterval(interval);
   }, [isAdmin]);
 
-  // ... [connectAdmin, handleUpdateFee, togglePauseStatus same as before] ...
   const connectAdmin = async () => {
     if (!window.ethereum) return alert("MetaMask is required!");
     try {
@@ -124,6 +123,7 @@ function App() {
         <span className={`badge ${isPaused ? 'badge-paused' : 'badge-active'}`}>System: {isPaused ? 'PAUSED' : 'ACTIVE'}</span>
       </div>
 
+      {/* Directory Table */}
       <div className="card">
         <h3>Registered Users Directory</h3>
         <div className="table-container">
@@ -132,7 +132,7 @@ function App() {
             <tbody>
               {usersList.map((user, i) => (
                 <tr key={i}>
-                  <td><strong>{i + 1}</strong></td> {/* FIXED: Numbering explicit kar di */}
+                  <td><strong>{i + 1}</strong></td>
                   <td style={{fontFamily:'monospace'}}>{user.userWallet}</td>
                   <td style={{fontFamily:'monospace'}}>{user.destinationWallet}</td>
                   <td>{ethers.formatUnits(user.totalForwarded, 18)} USDT</td>
@@ -143,6 +143,7 @@ function App() {
         </div>
       </div>
 
+      {/* History Table */}
       <div className="card">
         <h3>Transfer History (Latest 20)</h3>
         <div className="table-container">
@@ -153,7 +154,7 @@ function App() {
                 <tr key={i}>
                   <td>{i + 1}</td>
                   <td>{tx.time}</td>
-                  <td><strong>#{tx.userId}</strong></td> {/* FIXED: Numbering explicit kar di */}
+                  <td><strong>#{tx.userId}</strong></td>
                   <td style={{fontFamily:'monospace'}}>{tx.destination}</td>
                   <td>+{tx.amount} USDT</td>
                 </tr>
