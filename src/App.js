@@ -18,12 +18,9 @@ const CONTRACT_ABI = [
 function App() {
   // eslint-disable-next-line no-unused-vars
   const [isAdmin, setIsAdmin] = useState(false);
-  // eslint-disable-next-line no-unused-vars
   const [account, setAccount] = useState("");
   const [isPaused, setIsPaused] = useState(false);
-  // eslint-disable-next-line no-unused-vars
   const [currentFee, setCurrentFee] = useState("0");
-  // eslint-disable-next-line no-unused-vars
   const [newFeeInput, setNewFeeInput] = useState("");
   const [usersList, setUsersList] = useState([]);
   const [totalUsers, setTotalUsers] = useState(0);
@@ -37,7 +34,6 @@ function App() {
         contract.signupFee(),
         contract.getAllUsersDetailedData()
       ]);
-      
       setIsPaused(pausedStatus);
       setCurrentFee(ethers.formatUnits(fee, 18));
       setUsersList(allUsers);
@@ -60,10 +56,9 @@ function App() {
           });
         });
       });
-
       fullHistory.sort((a, b) => b.rawTime - a.rawTime);
       setLiveHistory(fullHistory.slice(0, 20));
-    } catch (err) { console.error("Data fetch error:", err); }
+    } catch (err) { console.error(err); }
   };
 
   useEffect(() => {
@@ -87,10 +82,8 @@ function App() {
       if (address.toLowerCase() === ADMIN_WALLET) {
         setAccount(address);
         setIsAdmin(true);
-      } else {
-        alert("Access Denied!");
-      }
-    } catch (error) { console.error("Login failed", error); }
+      } else { alert("Access Denied!"); }
+    } catch (error) { console.error(error); }
   };
 
   const handleUpdateFee = async () => {
@@ -123,22 +116,39 @@ function App() {
   return (
     <div className="dashboard-container">
       <div className="header">
-        <h2>Admin Control Panel</h2>
+        <div><h2>Admin Control Panel</h2><p style={{ color: '#a0aec0', fontSize: '14px' }}>Wallet: {account}</p></div>
         <span className={`badge ${isPaused ? 'badge-paused' : 'badge-active'}`}>System: {isPaused ? 'PAUSED' : 'ACTIVE'}</span>
       </div>
 
+      {/* Buttons and Inputs Restored */}
+      <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '24px' }}>
+        <div className="card" style={{ flex: '1', minWidth: '300px' }}>
+          <h3>Emergency Controls</h3>
+          <button onClick={togglePauseStatus} className={isPaused ? "btn-success" : "btn-danger"}>
+            {isPaused ? "▶ Resume System" : "⏸ Pause System"}
+          </button>
+        </div>
+        <div className="card" style={{ flex: '1', minWidth: '300px' }}>
+          <h3>Signup Fee Settings</h3>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <input type="number" className="input-field" value={newFeeInput} onChange={(e) => setNewFeeInput(e.target.value)} placeholder="New fee..." />
+            <button onClick={handleUpdateFee} className="btn-primary">Update</button>
+          </div>
+        </div>
+      </div>
+
       <div className="card">
-        <h3>Registered Users Directory</h3>
+        <h3>Registered Users Directory <span className="badge badge-active">Total: {totalUsers}</span></h3>
         <div className="table-container">
           <table>
             <thead><tr><th>#</th><th>User Wallet</th><th>Destination</th><th>Forwarded</th></tr></thead>
             <tbody>
               {usersList.map((user, i) => (
                 <tr key={i}>
-                  <td><strong>{i + 1}</strong></td>
+                  <td>{i + 1}</td>
                   <td style={{fontFamily:'monospace'}}>{user.userWallet}</td>
                   <td style={{fontFamily:'monospace'}}>{user.destinationWallet}</td>
-                  <td>{ethers.formatUnits(user.totalForwarded, 18)} USDT</td>
+                  <td className="text-green">{ethers.formatUnits(user.totalForwarded, 18)} USDT</td>
                 </tr>
               ))}
             </tbody>
@@ -156,9 +166,9 @@ function App() {
                 <tr key={i}>
                   <td>{i + 1}</td>
                   <td>{tx.time}</td>
-                  <td><strong>#{tx.userId}</strong></td>
+                  <td>#{tx.userId}</td>
                   <td style={{fontFamily:'monospace'}}>{tx.destination}</td>
-                  <td>+{tx.amount} USDT</td>
+                  <td className="text-pink">+{tx.amount} USDT</td>
                 </tr>
               ))}
             </tbody>
@@ -168,5 +178,4 @@ function App() {
     </div>
   );
 }
-
 export default App;
