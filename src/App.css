@@ -1,6 +1,110 @@
-/* ... (Top part waisa hi rahega) ... */
+/* src/App.css */
+body {
+  background-color: #0b0e14;
+  color: #ffffff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+}
 
-/* Tables Design */
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: radial-gradient(circle at center, #1f1437 0%, #0b0e14 100%);
+}
+
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 30px 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #2d3748;
+  margin-bottom: 30px;
+}
+
+.card {
+  background-color: #1a202c;
+  border: 1px solid #2d3748;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, #8b5cf6, #ec4899);
+  border: none;
+  padding: 12px 24px;
+  color: white;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.4);
+}
+
+.btn-danger {
+  background: #ef4444;
+  border: none;
+  padding: 10px 20px;
+  color: white;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-success {
+  background: #10b981;
+  border: none;
+  padding: 10px 20px;
+  color: white;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.input-field {
+  background-color: #0b0e14;
+  border: 1px solid #4a5568;
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  width: 250px;
+  margin-right: 15px;
+  outline: none;
+}
+
+.input-field:focus {
+  border-color: #8b5cf6;
+}
+
+.badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.badge-active { background-color: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid #10b981; }
+.badge-paused { background-color: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; }
+
+/* Tables Design ke liye naye styles */
 .table-container {
   width: 100%;
   overflow-x: auto;
@@ -17,14 +121,6 @@ th, td {
   padding: 14px 16px;
   border-bottom: 1px solid #2d3748;
   font-size: 14px;
-}
-
-/* NAYA: Numbering column fix */
-th:first-child, td:first-child {
-  width: 50px;       /* Number column ko fix width di */
-  text-align: center;
-  color: #8b5cf6;    /* Number ko thoda highlight kiya */
-  font-weight: bold;
 }
 
 th {
