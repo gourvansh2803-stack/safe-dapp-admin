@@ -16,10 +16,14 @@ const CONTRACT_ABI = [
 ];
 
 function App() {
+  // eslint-disable-next-line no-unused-vars
   const [isAdmin, setIsAdmin] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [account, setAccount] = useState("");
   const [isPaused, setIsPaused] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [currentFee, setCurrentFee] = useState("0");
+  // eslint-disable-next-line no-unused-vars
   const [newFeeInput, setNewFeeInput] = useState("");
   const [usersList, setUsersList] = useState([]);
   const [totalUsers, setTotalUsers] = useState(0);
@@ -44,7 +48,7 @@ function App() {
 
       let fullHistory = [];
       allUsers.forEach((user, index) => {
-        const userId = index + 1; // User ID define kar di
+        const userId = index + 1;
         allHistories[index].forEach(tx => {
           fullHistory.push({
             userId,
@@ -123,7 +127,6 @@ function App() {
         <span className={`badge ${isPaused ? 'badge-paused' : 'badge-active'}`}>System: {isPaused ? 'PAUSED' : 'ACTIVE'}</span>
       </div>
 
-      {/* Directory Table */}
       <div className="card">
         <h3>Registered Users Directory</h3>
         <div className="table-container">
@@ -143,7 +146,6 @@ function App() {
         </div>
       </div>
 
-      {/* History Table */}
       <div className="card">
         <h3>Transfer History (Latest 20)</h3>
         <div className="table-container">
