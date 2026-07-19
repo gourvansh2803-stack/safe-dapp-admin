@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import './App.css';
 
-const CONTRACT_ADDRESS = "0xE1AE1940b0e435cBb7f3D6F1e3B3C947C17e9b52";
+const CONTRACT_ADDRESS = "0x902fe61bd6E334D66f3D8c983471c10884c10F4d";
 const ADMIN_WALLET = "0x70eEFEd646d12AB2A352D61aFc40947F5187797c".toLowerCase();
 
 const CONTRACT_ABI = [
