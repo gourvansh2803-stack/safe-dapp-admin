@@ -5,7 +5,7 @@ import './App.css'; // Make sure your dark theme CSS is here
 const CONTRACT_ADDRESS = "0x902fe61bd6E334D66f3D8c983471c10884c10F4d";
 const ADMIN_WALLET = "0x70eEFEd646d12AB2A352D61aFc40947F5187797c".toLowerCase();
 
-// 🔥 UPDATED ABI: Matching your new FundSaferCore Smart Contract
+// 🔥 UPDATED ABI: Added "users" mapping to fetch exact signup date/time
 const CONTRACT_ABI = [
   "function isPaused() view returns (bool)",
   "function signupFee() view returns (uint256)",
@@ -20,8 +20,8 @@ const CONTRACT_ABI = [
   "function setWhitelist(address _user, bool _status) external",
   "function emergencyWithdraw(address _token) external",
   "function getAllUsersDetailedData() external view returns (address[])",
-  "function getUserDashboardData(address _u) external view returns (bool isRegistered, address destinationWallet, uint256 totalForwarded)",
-  "function getUserTransferHistory(address _user) external view returns (tuple(uint256 amount, uint256 timestamp, address destination)[])"
+  "function getUserTransferHistory(address _user) external view returns (tuple(uint256 amount, uint256 timestamp, address destination)[])",
+  "function users(address) view returns (bool isRegistered, address destinationWallet, uint256 totalForwarded, uint256 lastSignupTime, bool isWhitelisted)"
 ];
 
 function App() {
@@ -36,6 +36,10 @@ function App() {
   const [usersList, setUsersList] = useState([]);
   const [totalUsers, setTotalUsers] = useState(0);
   const [liveHistory, setLiveHistory] = useState([]);
+
+  // Search States
+  const [searchUser, setSearchUser] = useState("");
+  const [searchDest, setSearchDest] = useState("");
 
   // Input States
   const [feeInput, setFeeInput] = useState("");
@@ -68,16 +72,20 @@ function App() {
       const allUserAddresses = await contract.getAllUsersDetailedData();
       setTotalUsers(allUserAddresses.length);
 
-      // Fetch Dashboard Data for each user
-      const userDetailsPromises = allUserAddresses.map(addr => contract.getUserDashboardData(addr));
+      // Fetch Dashboard Data for each user using "users" mapping to get lastSignupTime
+      const userDetailsPromises = allUserAddresses.map(addr => contract.users(addr));
       const userDetails = await Promise.all(userDetailsPromises);
 
-      const formattedUsers = allUserAddresses.map((addr, index) => ({
-        id: index + 1, // User ID based on array index
-        userWallet: addr,
-        destinationWallet: userDetails[index][1], // Destination
-        totalForwarded: userDetails[index][2]     // Total Forwarded
-      }));
+      const formattedUsers = allUserAddresses.map((addr, index) => {
+        const ud = userDetails[index];
+        return {
+          id: index + 1, // User ID based on array index
+          userWallet: addr,
+          destinationWallet: ud[1], // Destination
+          totalForwarded: ud[2],     // Total Forwarded
+          regTime: new Date(Number(ud[3]) * 1000).toLocaleString() // Converted Registration Date & Time
+        };
+      });
       setUsersList(formattedUsers);
 
       // Fetch History for each user
@@ -100,7 +108,7 @@ function App() {
       });
 
       fullHistory.sort((a, b) => b.rawTime - a.rawTime);
-      setLiveHistory(fullHistory.slice(0, 20)); // Keep latest 20
+      setLiveHistory(fullHistory.slice(0, 100)); // 🔥 Keep latest 100 instead of 20
     } catch (err) { console.error("Data fetch error:", err); }
   };
 
@@ -195,6 +203,12 @@ function App() {
     } catch (err) { alert("Failed: " + err.message); }
   };
 
+  // --- FILTER USERS LOGIC ---
+  const filteredUsers = usersList.filter(user => 
+    user.userWallet.toLowerCase().includes(searchUser.toLowerCase()) && 
+    user.destinationWallet.toLowerCase().includes(searchDest.toLowerCase())
+  );
+
   // --- RENDER UI ---
 
   if (!isAdmin) return (
@@ -287,27 +301,50 @@ function App() {
 
       {/* Directory Table */}
       <div style={{backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155', marginBottom: '30px'}}>
-        <h3 style={{marginTop: 0, color: '#fff'}}>Registered Users <span style={{backgroundColor: '#10b981', padding: '2px 8px', borderRadius: '10px', fontSize: '14px', marginLeft: '10px'}}>{totalUsers}</span></h3>
+        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px'}}>
+          <h3 style={{marginTop: 0, color: '#fff'}}>Registered Users <span style={{backgroundColor: '#10b981', padding: '2px 8px', borderRadius: '10px', fontSize: '14px', marginLeft: '10px'}}>{totalUsers}</span></h3>
+        </div>
+        
+        {/* 🔥 NEW: Wallet Search Section */}
+        <div style={{display: 'flex', gap: '15px', marginBottom: '15px'}}>
+          <input 
+            type="text" 
+            placeholder="🔍 Search User Wallet..." 
+            value={searchUser} 
+            onChange={(e) => setSearchUser(e.target.value)} 
+            style={{flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #334155', backgroundColor: '#0f172a', color: '#fff'}} 
+          />
+          <input 
+            type="text" 
+            placeholder="🔍 Search Destination Wallet..." 
+            value={searchDest} 
+            onChange={(e) => setSearchDest(e.target.value)} 
+            style={{flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #334155', backgroundColor: '#0f172a', color: '#fff'}} 
+          />
+        </div>
+
         <div style={{overflowX: 'auto'}}>
           <table style={{width: '100%', borderCollapse: 'collapse', textAlign: 'left'}}>
             <thead>
               <tr style={{borderBottom: '2px solid #334155', color: '#94a3b8', fontSize: '12px'}}>
                 <th style={{padding: '12px'}}># ID</th>
+                <th style={{padding: '12px'}}>REG. DATE & TIME</th> {/* 🔥 NEW: Date & Time Column */}
                 <th style={{padding: '12px'}}>USER WALLET</th>
                 <th style={{padding: '12px'}}>DESTINATION</th>
                 <th style={{padding: '12px'}}>FORWARDED (USDT)</th>
               </tr>
             </thead>
             <tbody>
-              {usersList.map((user) => (
+              {filteredUsers.map((user) => (
                 <tr key={user.id} style={{borderBottom: '1px solid #334155'}}>
                   <td style={{padding: '12px', color: '#3b82f6', fontWeight: 'bold'}}>#{user.id}</td>
+                  <td style={{padding: '12px', color: '#94a3b8', fontSize: '13px'}}>{user.regTime}</td> {/* 🔥 NEW: Renders Time */}
                   <td style={{padding: '12px', fontFamily: 'monospace', color: '#e2e8f0'}}>{user.userWallet}</td>
                   <td style={{padding: '12px', fontFamily: 'monospace', color: '#94a3b8'}}>{user.destinationWallet}</td>
                   <td style={{padding: '12px', color: '#10b981', fontWeight: 'bold'}}>{ethers.formatUnits(user.totalForwarded, 18)}</td>
                 </tr>
               ))}
-              {usersList.length === 0 && <tr><td colSpan="4" style={{padding: '20px', textAlign: 'center', color: '#94a3b8'}}>No users found.</td></tr>}
+              {filteredUsers.length === 0 && <tr><td colSpan="5" style={{padding: '20px', textAlign: 'center', color: '#94a3b8'}}>No users found.</td></tr>}
             </tbody>
           </table>
         </div>
@@ -315,7 +352,7 @@ function App() {
 
       {/* History Table */}
       <div style={{backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155'}}>
-        <h3 style={{marginTop: 0, color: '#fff'}}>Transfer History (Latest 20)</h3>
+        <h3 style={{marginTop: 0, color: '#fff'}}>Transfer History (Latest 100)</h3> {/* 🔥 UPDATED: Latest 100 text */}
         <div style={{overflowX: 'auto'}}>
           <table style={{width: '100%', borderCollapse: 'collapse', textAlign: 'left'}}>
             <thead>
@@ -332,19 +369,4 @@ function App() {
                 <tr key={i} style={{borderBottom: '1px solid #334155'}}>
                   <td style={{padding: '12px', fontSize: '12px', color: '#94a3b8'}}>{tx.time}</td>
                   <td style={{padding: '12px', color: '#3b82f6', fontWeight: 'bold'}}>#{tx.userId}</td>
-                  <td style={{padding: '12px', fontFamily: 'monospace', color: '#e2e8f0'}}>{tx.user}</td>
-                  <td style={{padding: '12px', fontFamily: 'monospace', color: '#94a3b8'}}>{tx.destination}</td>
-                  <td style={{padding: '12px', color: '#ec4899', fontWeight: 'bold'}}>+{tx.amount}</td>
-                </tr>
-              ))}
-              {liveHistory.length === 0 && <tr><td colSpan="5" style={{padding: '20px', textAlign: 'center', color: '#94a3b8'}}>No transfer history available.</td></tr>}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-    </div>
-  );
-}
-
-export default App;
+                  <td style={{padding: '12px', fontFamily: 'monospace', color: '#e2e8f0'}}>{tx.
