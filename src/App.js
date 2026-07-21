@@ -374,4 +374,14 @@ function App() {
                   <td style={{padding: '12px', color: '#ec4899', fontWeight: 'bold'}}>+{tx.amount}</td>
                 </tr>
               ))}
-              {liveHistory.length === 0 && <tr><td colSpan="5" sty
+              {liveHistory.length === 0 && <tr><td colSpan="5" style={{padding: '20px', textAlign: 'center', color: '#94a3b8'}}>No transfer history available.</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  );
+}
+
+export default App;
