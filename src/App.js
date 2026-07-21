@@ -337,7 +337,7 @@ function App() {
             <tbody>
               {filteredUsers.map((user) => (
                 <tr key={user.id} style={{borderBottom: '1px solid #334155'}}>
-                  <td style={{padding: '12px', color: '#3b82f6', fontWeight: 'bold'}}>#{user.id}</td>
+                  <td style={{padding: '12px', color: '#e2e8f0', fontWeight: 'bold'}}>#{user.id}</td>
                   <td style={{padding: '12px', color: '#94a3b8', fontSize: '13px'}}>{user.regTime}</td> 
                   <td style={{padding: '12px', fontFamily: 'monospace', color: '#e2e8f0'}}>{user.userWallet}</td>
                   <td style={{padding: '12px', fontFamily: 'monospace', color: '#94a3b8'}}>{user.destinationWallet}</td>
@@ -368,7 +368,7 @@ function App() {
               {liveHistory.map((tx, i) => (
                 <tr key={i} style={{borderBottom: '1px solid #334155'}}>
                   <td style={{padding: '12px', fontSize: '12px', color: '#94a3b8'}}>{tx.time}</td>
-                  <td style={{padding: '12px', color: '#3b82f6', fontWeight: 'bold'}}>#{tx.userId}</td>
+                  <td style={{padding: '12px', color: '#e2e8f0', fontWeight: 'bold'}}>#{tx.userId}</td>
                   <td style={{padding: '12px', fontFamily: 'monospace', color: '#e2e8f0'}}>{tx.user}</td>
                   <td style={{padding: '12px', fontFamily: 'monospace', color: '#94a3b8'}}>{tx.destination}</td>
                   <td style={{padding: '12px', color: '#ec4899', fontWeight: 'bold'}}>+{tx.amount}</td>
