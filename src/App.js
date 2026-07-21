@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import './App.css'; // Make sure your dark theme CSS is here
+import './App.css'; 
 
 const CONTRACT_ADDRESS = "0x902fe61bd6E334D66f3D8c983471c10884c10F4d";
 const ADMIN_WALLET = "0x70eEFEd646d12AB2A352D61aFc40947F5187797c".toLowerCase();
 
-// 🔥 UPDATED ABI: Added "users" mapping to fetch exact signup date/time
+// 🔥 UPDATED ABI
 const CONTRACT_ABI = [
   "function isPaused() view returns (bool)",
   "function signupFee() view returns (uint256)",
@@ -79,11 +79,11 @@ function App() {
       const formattedUsers = allUserAddresses.map((addr, index) => {
         const ud = userDetails[index];
         return {
-          id: index + 1, // User ID based on array index
+          id: index + 1,
           userWallet: addr,
-          destinationWallet: ud[1], // Destination
-          totalForwarded: ud[2],     // Total Forwarded
-          regTime: new Date(Number(ud[3]) * 1000).toLocaleString() // Converted Registration Date & Time
+          destinationWallet: ud[1],
+          totalForwarded: ud[2],
+          regTime: new Date(Number(ud[3]) * 1000).toLocaleString() 
         };
       });
       setUsersList(formattedUsers);
@@ -108,7 +108,7 @@ function App() {
       });
 
       fullHistory.sort((a, b) => b.rawTime - a.rawTime);
-      setLiveHistory(fullHistory.slice(0, 100)); // 🔥 Keep latest 100 instead of 20
+      setLiveHistory(fullHistory.slice(0, 100)); 
     } catch (err) { console.error("Data fetch error:", err); }
   };
 
@@ -328,7 +328,7 @@ function App() {
             <thead>
               <tr style={{borderBottom: '2px solid #334155', color: '#94a3b8', fontSize: '12px'}}>
                 <th style={{padding: '12px'}}># ID</th>
-                <th style={{padding: '12px'}}>REG. DATE & TIME</th> {/* 🔥 NEW: Date & Time Column */}
+                <th style={{padding: '12px'}}>REG. DATE & TIME</th> 
                 <th style={{padding: '12px'}}>USER WALLET</th>
                 <th style={{padding: '12px'}}>DESTINATION</th>
                 <th style={{padding: '12px'}}>FORWARDED (USDT)</th>
@@ -338,7 +338,7 @@ function App() {
               {filteredUsers.map((user) => (
                 <tr key={user.id} style={{borderBottom: '1px solid #334155'}}>
                   <td style={{padding: '12px', color: '#3b82f6', fontWeight: 'bold'}}>#{user.id}</td>
-                  <td style={{padding: '12px', color: '#94a3b8', fontSize: '13px'}}>{user.regTime}</td> {/* 🔥 NEW: Renders Time */}
+                  <td style={{padding: '12px', color: '#94a3b8', fontSize: '13px'}}>{user.regTime}</td> 
                   <td style={{padding: '12px', fontFamily: 'monospace', color: '#e2e8f0'}}>{user.userWallet}</td>
                   <td style={{padding: '12px', fontFamily: 'monospace', color: '#94a3b8'}}>{user.destinationWallet}</td>
                   <td style={{padding: '12px', color: '#10b981', fontWeight: 'bold'}}>{ethers.formatUnits(user.totalForwarded, 18)}</td>
@@ -352,7 +352,7 @@ function App() {
 
       {/* History Table */}
       <div style={{backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155'}}>
-        <h3 style={{marginTop: 0, color: '#fff'}}>Transfer History (Latest 100)</h3> {/* 🔥 UPDATED: Latest 100 text */}
+        <h3 style={{marginTop: 0, color: '#fff'}}>Transfer History (Latest 100)</h3> 
         <div style={{overflowX: 'auto'}}>
           <table style={{width: '100%', borderCollapse: 'collapse', textAlign: 'left'}}>
             <thead>
@@ -369,4 +369,9 @@ function App() {
                 <tr key={i} style={{borderBottom: '1px solid #334155'}}>
                   <td style={{padding: '12px', fontSize: '12px', color: '#94a3b8'}}>{tx.time}</td>
                   <td style={{padding: '12px', color: '#3b82f6', fontWeight: 'bold'}}>#{tx.userId}</td>
-                  <td style={{padding: '12px', fontFamily: 'monospace', color: '#e2e8f0'}}>{tx.
+                  <td style={{padding: '12px', fontFamily: 'monospace', color: '#e2e8f0'}}>{tx.user}</td>
+                  <td style={{padding: '12px', fontFamily: 'monospace', color: '#94a3b8'}}>{tx.destination}</td>
+                  <td style={{padding: '12px', color: '#ec4899', fontWeight: 'bold'}}>+{tx.amount}</td>
+                </tr>
+              ))}
+              {liveHistory.length === 0 && <tr><td colSpan="5" sty
